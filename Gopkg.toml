@@ -1,0 +1,17 @@
+
+required = [
+  "github.com/spf13/cobra",
+  "github.com/sirupsen/logrus",
+  "github.com/x-cray/logrus-prefixed-formatter",
+  "github.com/urfave/negroni",
+  "github.com/gorilla/mux",
+  "github.com/thoas/stats",
+  "github.com/DataDog/datadog-go/statsd",
+  "github.com/satori/go.uuid",
+  "github.com/vulcand/oxy/forward",
+  "github.com/vulcand/oxy/testutils",
+  "github.com/vulcand/predicate",
+  "github.com/aws/aws-sdk-go-v2",
+]
+
+ignored = ["github.com/Sirupsen/logrus"]
