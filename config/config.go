@@ -27,6 +27,11 @@ func Defaults() {
 		"requests": true,
 	})
 
+	viper.SetDefault("admin", map[string]interface{}{
+		"host": "localhost",
+		"port": 9302,
+	})
+
 	viper.SetDefault("correlation", map[string]interface{}{
 		"enabled": true,
 		"header": "X-Request-Identifier",
