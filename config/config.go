@@ -28,8 +28,9 @@ func Defaults() {
 	})
 
 	viper.SetDefault("admin", map[string]interface{}{
-		"host": "localhost",
+		"bind": "localhost",
 		"port": 9302,
+		"log": true,
 	})
 
 	viper.SetDefault("correlation", map[string]interface{}{
