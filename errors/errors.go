@@ -69,8 +69,7 @@ func NewHTTPError(code int, message string, metadata map[string]interface{}) *HT
 }
 
 func (e *HTTPError) Error() string {
-	json := e.Json()
-	return string(json[:])
+	return string(e.Json())
 }
 
 func (e *HTTPError) String() string {
