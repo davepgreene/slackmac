@@ -71,9 +71,14 @@ func Handler() error {
 	// Bombs away!
 	go func() {
 		m := mux.NewRouter()
-		m.HandleFunc("/stats", newAdminHandler(statsMiddleware).ServeHTTP)
-		adminConn := fmt.Sprintf("%s:%d", viper.GetString("admin.host"), viper.GetInt("admin.port"))
-		log.Fatal(server(adminConn, m).ListenAndServe())
+		statsMiddleware := negroni.New()
+
+		m.HandleFunc("/stats", newAdminHandler(stats).ServeHTTP)
+
+		statsMiddleware.UseHandler(m)
+
+		adminConn := fmt.Sprintf("%s:%d", viper.GetString("admin.bind"), viper.GetInt("admin.port"))
+		log.Fatal(server(adminConn, statsMiddleware).ListenAndServe())
 	}()
 	return server(conn, n).ListenAndServe()
 }
