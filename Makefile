@@ -1,6 +1,6 @@
 SHELL := $(shell which bash) # set default shell
 # OS / Arch we will build our binaries for
-OSARCH ?= "linux/amd64 darwin/amd64"
+OSARCH ?= "linux/amd64 linux/386 darwin/amd64 darwin/386"
 ENV = /usr/bin/env
 
 .SHELLFLAGS = -c # Run commands in a -c flag
