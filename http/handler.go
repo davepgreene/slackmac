@@ -75,6 +75,10 @@ func Handler() error {
 
 		m.HandleFunc("/stats", newAdminHandler(stats).ServeHTTP)
 
+		if viper.GetBool("admin.log") {
+			statsMiddleware.Use(negronilogrus.NewCustomMiddleware(utils.GetLogLevel(), utils.GetLogFormatter(), "admin.requests"))
+		}
+
 		statsMiddleware.UseHandler(m)
 
 		adminConn := fmt.Sprintf("%s:%d", viper.GetString("admin.bind"), viper.GetInt("admin.port"))
