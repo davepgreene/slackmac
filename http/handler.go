@@ -72,8 +72,13 @@ func Handler() error {
 	go func() {
 		m := mux.NewRouter()
 		statsMiddleware := negroni.New()
+		statsMiddleware.Use(recovery)
 
 		m.HandleFunc("/stats", newAdminHandler(stats).ServeHTTP)
+
+		m.HandleFunc("/health", func(rw http.ResponseWriter, r *http.Request) {
+			rw.WriteHeader(http.StatusOK)
+		})
 
 		if viper.GetBool("admin.log") {
 			statsMiddleware.Use(negronilogrus.NewCustomMiddleware(utils.GetLogLevel(), utils.GetLogFormatter(), "admin.requests"))
