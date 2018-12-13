@@ -87,6 +87,7 @@ func Handler() error {
 		statsMiddleware.UseHandler(m)
 
 		adminConn := fmt.Sprintf("%s:%d", viper.GetString("admin.bind"), viper.GetInt("admin.port"))
+		log.Infof("Admin: Listening on %s", conn)
 		log.Fatal(server(adminConn, statsMiddleware).ListenAndServe())
 	}()
 	return server(conn, n).ListenAndServe()
