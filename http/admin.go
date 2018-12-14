@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 
 	"github.com/gorilla/handlers"
@@ -23,9 +24,11 @@ func newAdminHandler(s *stats.Stats) http.Handler {
 func (h *adminHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	stats := h.Stats.Data()
+	s := h.Stats.Data()
+	b, _ := json.Marshal(s)
 
-	b, _ := json.Marshal(stats)
-
-	w.Write(b)
+	_, err := w.Write(b)
+	if err != nil {
+		log.Error(err)
+	}
 }

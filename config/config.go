@@ -1,11 +1,11 @@
 package config
 
 import (
-	"crypto"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
+// MetricsClientConfig is a structured configuration object for the dogstatsd client
 type MetricsClientConfig struct {
 	Host string
 	Port int
@@ -58,6 +58,7 @@ func Defaults() {
 	viper.SetDefault("metrics", map[string]interface{}{
 		"enabled": true,
 	})
+
 	viper.SetDefault("metrics.client", map[string]interface{}{
 		"host":   "localhost",
 		"port":   8125,
@@ -85,12 +86,3 @@ func Metrics() MetricsClientConfig {
 	}
 	return conf
 }
-
-var SUPPORTED_ALGORITHMS = map[string]interface{}{
-	"SHA256": crypto.SHA256,
-}
-
-var SUPPORT_ALGORITHMS_LOOKUP = map[crypto.Hash]string {
-	crypto.SHA256: "SHA256",
-}
-

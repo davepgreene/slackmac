@@ -1,7 +1,6 @@
 package store
 
 import (
-	"errors"
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/awserr"
@@ -10,14 +9,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type SecretsManagerStore struct {
-	svc *secretsmanager.SecretsManager
-	secretId string
+type secretsManagerStore struct {
+	svc      *secretsmanager.SecretsManager
+	secretID string
 }
 
-func (s *SecretsManagerStore) Get() string {
+// Get retrieves data from AWS secrets manager
+func (s *secretsManagerStore) Get() string {
 	input := &secretsmanager.GetSecretValueInput{
-		SecretId: aws.String(s.secretId),
+		SecretId: aws.String(s.secretID),
 	}
 
 	req := s.svc.GetSecretValueRequest(input)
@@ -48,7 +48,7 @@ func (s *SecretsManagerStore) Get() string {
 	return *result.SecretString
 }
 
-func NewSecretsManagerStore(conf map[string]string) (Store, error) {
+func newSecretsManagerStore(conf map[string]string) (Store, error) {
 	cfg, err := external.LoadDefaultAWSConfig()
 	if err != nil {
 		return nil, err
@@ -56,19 +56,19 @@ func NewSecretsManagerStore(conf map[string]string) (Store, error) {
 
 	region, ok := conf["region"]
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("%s is required for the AWS secrets manager datastore", "region"))
+		return nil, fmt.Errorf("%s is required for the AWS secrets manager datastore", "region")
 	}
 	cfg.Region = region
 
 	svc := secretsmanager.New(cfg)
 
-	secretId, ok := conf["id"]
+	secretID, ok := conf["id"]
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("%s is required for the AWS secrets manager datastore", "id"))
+		return nil, fmt.Errorf("%s is required for the AWS secrets manager datastore", "id")
 	}
 
-	return &SecretsManagerStore{
-		svc: svc,
-		secretId: secretId,
+	return &secretsManagerStore{
+		svc:      svc,
+		secretID: secretID,
 	}, nil
 }

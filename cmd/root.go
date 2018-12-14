@@ -1,9 +1,9 @@
 package cmd
 
 import (
+	"crypto"
 	"fmt"
 	"github.com/davepgreene/slackmac/config"
-	"github.com/davepgreene/slackmac/errors"
 	"github.com/davepgreene/slackmac/http"
 	"github.com/davepgreene/slackmac/utils"
 	"os"
@@ -28,39 +28,36 @@ request is sent with Content-Type application/x-www-form-urlencoded.
 By offloading this work to a proxy, SlackMac can be dropped in front
 of any service that needs to validate Slack payloads without the developer
 ever having to worry about calculating HMACs. It's already done!`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		err := initializeConfig()
 		initializeLog()
 		if err != nil {
-			return err
+			log.Fatal(err)
+		}
+
+		SupportedAlgorithms := map[string]interface{}{
+			"SHA256": crypto.SHA256,
 		}
 
 		// Prevent boot if we aren't using a supported algorithm
 		confAlg := viper.GetString("slack.algorithm")
-		if val, ok := config.SUPPORTED_ALGORITHMS[strings.ToUpper(confAlg)]; ok {
+		if val, ok := SupportedAlgorithms[strings.ToUpper(confAlg)]; ok {
 			// Set the actual crypto algorithm instead of a string representation
 			viper.Set("slack.algorithm", val)
-			return boot()
+
+			// Instantiate our metrics client early
+			_, err := utils.Metrics()
+			if err != nil {
+				log.Error(err)
+			}
+			log.Fatal(http.Handler())
 		}
 
-		supported := strings.Join(utils.MapKeys(config.SUPPORTED_ALGORITHMS), ", ")
-		message := fmt.Sprintf("Slack currently supports the following encryption algorithms: %s. You specified %s.", supported, confAlg)
-		err = errors.NewUnsupportedAlgorithmError(message, strings.ToUpper(confAlg))
-		log.Fatal(err)
-		return err
+		supported := strings.Join(utils.MapKeys(SupportedAlgorithms), ", ")
+		log.Fatalf("Slack currently supports the following encryption algorithms: %s. You specified %s.", supported, confAlg)
 	},
 }
 
-func boot() error {
-	// Instantiate our metrics client early
-	_, err := utils.Metrics()
-	if err != nil {
-		log.Error(err)
-	}
-	main := http.Handler()
-	log.Error(main)
-	return main
-}
 
 // Execute adds all child commands to the root command sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the SlackMacCmd.

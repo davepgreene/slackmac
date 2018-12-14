@@ -2,7 +2,6 @@ package store
 
 import (
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws/awserr"
 	"github.com/aws/aws-sdk-go-v2/aws/external"
@@ -10,16 +9,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type KMSStore struct {
+type kmsStore struct {
 	ciphertext string
 	cipherTextBlob []byte
 	svc *kms.KMS
 }
 
-func (k *KMSStore) Get() string {
-	var input *kms.DecryptInput
-
-	input = &kms.DecryptInput{
+// Get decrypts data that has been encrypted with AWS KMS
+func (k *kmsStore) Get() string {
+	input := &kms.DecryptInput{
 		CiphertextBlob: k.cipherTextBlob,
 	}
 
@@ -57,7 +55,7 @@ func (k *KMSStore) Get() string {
 	return string(result.Plaintext)
 }
 
-func NewKMSStore(conf map[string]string) (Store, error) {
+func newKMSStore(conf map[string]string) (Store, error) {
 	cfg, err := external.LoadDefaultAWSConfig()
 	if err != nil {
 		return nil, err
@@ -72,7 +70,7 @@ func NewKMSStore(conf map[string]string) (Store, error) {
 
 	ciphertext, ok := conf["ciphertext"]
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("%s is required for the AWS KMS datastore", "data"))
+		return nil, fmt.Errorf("%s is required for the AWS KMS datastore", "data")
 	}
 
 	cipherTextBlob, err := base64.StdEncoding.DecodeString(ciphertext)
@@ -80,7 +78,7 @@ func NewKMSStore(conf map[string]string) (Store, error) {
 		return nil, err
 	}
 
-	return &KMSStore{
+	return &kmsStore{
 		cipherTextBlob: cipherTextBlob,
 		ciphertext: ciphertext,
 		svc: svc,

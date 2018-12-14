@@ -9,27 +9,27 @@ import (
 	"time"
 )
 
-var REQUIRED_HEADERS = [2]string{SlackTimestampHeader, SlackSignatureHeader}
+var requiredHeaders = [2]string{slackTimestampHeader, slackSignatureHeader}
 
 func timestamp(skew time.Duration) func(http.ResponseWriter, *http.Request, http.HandlerFunc) {
 	return func(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 		metadata := map[string]interface{} {
-			"identifier": GetCorrelationId(rw),
+			"identifier": getCorrelationID(rw),
 		}
 		fields := log.Fields{
 			"identifier": metadata["identifier"],
 		}
 
-		for _, header := range REQUIRED_HEADERS {
+		for _, header := range requiredHeaders {
 			if r.Header.Get(header) == "" {
-				errors.ErrorWriter(errors.NewRequestError(fmt.Sprintf("Missing header: %s", header), metadata), rw)
+				errors.ErrorWriter(errors.NewBadRequestError(fmt.Sprintf("Missing header: %s", header), metadata), rw)
 				return
 			}
 		}
 
-		requestTime, err := utils.EpochStringToTime(r.Header.Get(SlackTimestampHeader))
+		requestTime, err := utils.EpochStringToTime(r.Header.Get(slackTimestampHeader))
 		if err != nil {
-			errors.ErrorWriter(errors.NewRequestError("Invalid date header", metadata), rw)
+			errors.ErrorWriter(errors.NewBadRequestError("Invalid date header", metadata), rw)
 			return
 		}
 

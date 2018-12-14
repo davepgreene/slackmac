@@ -17,7 +17,7 @@ var once sync.Once
 func Metrics() (*statsd.Client, error) {
 	once.Do(func() {
 		metricsClientConf := config.Metrics()
-		if metricsClientConf.Enabled != true {
+		if !metricsClientConf.Enabled {
 			err = errors.New("metrics collection has been disabled")
 			log.Error(err)
 			instance = nil

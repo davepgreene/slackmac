@@ -1,6 +1,7 @@
 package http
 
 const (
-	SlackTimestampHeader = "X-Slack-Request-Timestamp"
-	SlackSignatureHeader = "X-Slack-Signature"
+	slackTimestampHeader  = "X-Slack-Request-Timestamp"
+	slackSignatureHeader  = "X-Slack-Signature"
+	slackSignatureVersion = "v0"
 )

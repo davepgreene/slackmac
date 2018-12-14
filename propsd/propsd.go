@@ -9,24 +9,29 @@ import (
 )
 
 const (
+	// DefaultEndpoint is the default properties endpoint for Propsd
 	DefaultEndpoint = "http://localhost:9100/v1/properties"
-	Timeout = 5 * time.Second
+	// DefaultTimeout is a reasonable timeout for Propsd connections
+	DefaultTimeout  = 5 * time.Second
 )
 
+// Client represents a Propsd client
 type Client struct {
 	endpoint string
 	httpClient http.Client
 }
 
-func NewClient(endpoint string) *Client {
+// NewClient creates a new Propsd client
+func NewClient(endpoint string, timeout time.Duration) *Client {
 	return &Client{
 		endpoint: endpoint,
 		httpClient: http.Client{
-			Timeout: time.Duration(Timeout),
+			Timeout: timeout,
 		},
 	}
 }
 
+// Properties gets the entire property set from Propsd
 func (c * Client) Properties() ([]byte, error) {
 	req, err := http.NewRequest("GET", c.endpoint, nil)
 	if err != nil {
@@ -50,6 +55,7 @@ func (c * Client) Properties() ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
+// GetProperty gets a single property by name from Propsd
 func (c* Client) GetProperty(key string) ([]byte, error) {
 	var result map[string]interface{}
 

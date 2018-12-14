@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func GetCorrelationId(rw http.ResponseWriter) string {
+func getCorrelationID(rw http.ResponseWriter) string {
 	if viper.GetBool("correlation.enabled") {
 		return rw.Header().Get(viper.GetString("correlation.header"))
 	}
@@ -17,7 +17,7 @@ func GetCorrelationId(rw http.ResponseWriter) string {
 
 func correlationMiddleware(correlation map[string]interface{}) func(http.ResponseWriter, *http.Request, http.HandlerFunc) {
 	header, ok := correlation["header"].(string)
-	if ok == false {
+	if !ok {
 		log.Fatal("Missing required parameter `header`!")
 	}
 

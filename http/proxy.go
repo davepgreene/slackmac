@@ -10,10 +10,10 @@ import (
 func proxy(url string) http.Handler {
 	proxy := prox.New(url)
 
-	stream, err := stream.New(proxy)
+	s, err := stream.New(proxy)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return stream
+	return s
 }

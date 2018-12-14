@@ -25,7 +25,7 @@ func Handler() error {
 	}
 
 	r := mux.NewRouter()
-	stats := stats.New()
+	s := stats.New()
 
 	// Add middleware handlers
 	n := negroni.New()
@@ -39,7 +39,7 @@ func Handler() error {
 		n.Use(negronilogrus.NewCustomMiddleware(utils.GetLogLevel(), utils.GetLogFormatter(), "requests"))
 	}
 
-	n.Use(stats)
+	n.Use(s)
 
 	// Collect some metrics about incoming and active requests
 	n.Use(negroni.HandlerFunc(metricsMiddleware))
@@ -74,7 +74,7 @@ func Handler() error {
 		statsMiddleware := negroni.New()
 		statsMiddleware.Use(recovery)
 
-		m.HandleFunc("/stats", newAdminHandler(stats).ServeHTTP)
+		m.HandleFunc("/stats", newAdminHandler(s).ServeHTTP)
 
 		m.HandleFunc("/health", func(rw http.ResponseWriter, r *http.Request) {
 			rw.WriteHeader(http.StatusOK)

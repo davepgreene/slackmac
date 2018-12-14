@@ -14,26 +14,22 @@ import (
 	"strconv"
 )
 
-const (
-	VERSION = "v0"
-)
-
 func signature(store store.Store, algorithm crypto.Hash) func(http.ResponseWriter, *http.Request, http.HandlerFunc) {
 	return func(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-		identifier := GetCorrelationId(rw)
+		identifier := getCorrelationID(rw)
 		metadata := map[string]interface{}{
 			"identifier": identifier,
 		}
 
-		signature := r.Header.Get(SlackSignatureHeader)
+		signature := r.Header.Get(slackSignatureHeader)
 
 		log.WithFields(log.Fields{
 			"identifier": identifier,
 		}).Debugf("Request signature: %s", signature)
 
-		requestTime, err := utils.EpochStringToTime(r.Header.Get(SlackTimestampHeader))
+		requestTime, err := utils.EpochStringToTime(r.Header.Get(slackTimestampHeader))
 		if err != nil {
-			errors.ErrorWriter(errors.NewRequestError("Invalid date header", metadata), rw)
+			errors.ErrorWriter(errors.NewBadRequestError("Invalid date header", metadata), rw)
 			return
 		}
 
@@ -44,7 +40,7 @@ func signature(store store.Store, algorithm crypto.Hash) func(http.ResponseWrite
 
 		// Get the slack token and assemble the message we'll hash
 		token := store.Get()
-		message := VERSION + ":" + strconv.FormatInt(requestTime.Unix(), 10) + ":" + body.String()
+		message := slackSignatureVersion + ":" + strconv.FormatInt(requestTime.Unix(), 10) + ":" + body.String()
 		log.Debugf("Message: %s", message)
 
 		// Calculate the HMAC
@@ -52,7 +48,7 @@ func signature(store store.Store, algorithm crypto.Hash) func(http.ResponseWrite
 		h.Write([]byte(message))
 		sha := hex.EncodeToString(h.Sum(nil))
 
-		if hmac.Equal([]byte(signature), []byte(VERSION + "=" + sha)) == false {
+		if !hmac.Equal([]byte(signature), []byte(slackSignatureVersion+ "=" + sha)) {
 			errors.ErrorWriter(errors.NewAuthorizationError("Request HMAC is invalid", metadata), rw)
 			return
 		}

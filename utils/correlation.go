@@ -6,5 +6,9 @@ import (
 
 // CreateCorrelationID generates a new uuid
 func CreateCorrelationID() string {
-	return uuid.NewV4().String()
+	u, err := uuid.NewV4()
+	if err != nil {
+		return ""
+	}
+	return u.String()
 }
