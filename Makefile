@@ -21,7 +21,7 @@ dep: ## Get build dependencies
 	go get -u github.com/golang/dep/cmd/dep
 	go get -u github.com/mitchellh/gox
 
-cross-build: clean dep ## Build the app for multiple os/arch
+cross-build: clean dep lint ## Build the app for multiple os/arch
 	dep ensure && gox -osarch=$(OSARCH) -output "dist/{{.Dir}}_{{.OS}}_{{.Arch}}"
 
 clean: ## Clean the dist directory
