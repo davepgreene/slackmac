@@ -3,6 +3,7 @@ package utils
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"github.com/x-cray/logrus-prefixed-formatter"
 )
 
 // GetLogLevel retrieves the desired log level from settings.
@@ -25,5 +26,5 @@ func GetLogFormatter() log.Formatter {
 	if fmt {
 		return &log.JSONFormatter{}
 	}
-	return &log.TextFormatter{}
+	return &prefixed.TextFormatter{}
 }
