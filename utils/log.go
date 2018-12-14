@@ -1,9 +1,11 @@
 package utils
 
 import (
+	"encoding/json"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/x-cray/logrus-prefixed-formatter"
+	"strings"
 )
 
 // GetLogLevel retrieves the desired log level from settings.
@@ -24,7 +26,33 @@ func GetLogLevel() log.Level {
 func GetLogFormatter() log.Formatter {
 	fmt := viper.GetBool("log.json")
 	if fmt {
-		return &log.JSONFormatter{}
+		return &UppercaseJSONFormatter{}
 	}
 	return &prefixed.TextFormatter{}
+}
+
+// UppercaseJSONFormatter takes JSON formatted logs and uppercases the log level
+type UppercaseJSONFormatter struct {
+	log.JSONFormatter
+}
+
+// Format renders a single log entry
+func (f *UppercaseJSONFormatter) Format(entry *log.Entry) ([]byte, error) {
+	d := make(map[string]interface{})
+	b, err := f.JSONFormatter.Format(entry)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(b, &d)
+	if err != nil {
+		return nil, err
+	}
+
+	if val, ok := d["level"]; ok {
+		d["level"] = strings.ToUpper(val.(string))
+	}
+
+	b, err = json.Marshal(d)
+	return append(b, "\n"...), err
 }

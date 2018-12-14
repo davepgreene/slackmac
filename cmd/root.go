@@ -93,7 +93,7 @@ func initializeLog() {
 	}
 
 	if viper.GetBool("log.json") {
-		log.SetFormatter(&log.JSONFormatter{})
+		log.SetFormatter(&utils.UppercaseJSONFormatter{})
 	}
 
 	if cfgFile != "" {
