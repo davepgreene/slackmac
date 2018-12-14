@@ -1,0 +1,10 @@
+{
+  "Enable": [
+    "vet",
+    "golint",
+    "errcheck",
+    "megacheck",
+    "ineffassign",
+    "misspell"
+  ]
+}
